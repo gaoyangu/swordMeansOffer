@@ -262,3 +262,134 @@ vector<double> dicesProbability(int n) {
     return res;
 }
 ```
+
+## 14. 剪绳子
+
+- [牛客网: 剑指 Offer 14. 剪绳子](https://www.nowcoder.com/practice/57d85990ba5b440ab888fc72b0751bf8)
+- [leetcode: 剑指 Offer 14- I. 剪绳子](https://leetcode-cn.com/problems/jian-sheng-zi-lcof/)
+
+### 暴力递归
+
+```cpp
+int cutRope(int number) {
+    if(number == 2){
+        return 1;
+    }else if(number == 3){
+        return 2;
+    }
+    return process(number);
+}
+int process(int n){
+    if(n <= 4){
+        return n;
+    }
+    int res = INT_MIN;
+    for(int i = 1; i < n; i++){
+        res = max(res, i*process(n-i));
+    }
+    return res;
+}
+```
+
+### 记忆化递归
+
+```cpp
+int cutRope(int number) {
+    if(number == 2){
+        return 1;
+    }else if(number == 3){
+        return 2;
+    }
+    vector<int> dp(number+1, -1);
+    return process(number, dp);
+}
+int process(int n, vector<int>& dp){
+    if(n <= 4){
+        return n;
+    }
+    if(dp[n] != -1){
+        return dp[n];
+    }
+    int res = INT_MIN;
+    for(int i = 1; i < n; i++){
+        res = max(res, i*process(n-i, dp));
+    }
+    dp[n] = res;
+    return dp[n];
+}
+```
+
+### 动态规划
+
+```cpp
+int cutRope(int number) {
+    if(number == 2){
+        return 1;
+    }else if(number == 3){
+        return 2;
+    }
+    vector<int> dp(number+1, -1);
+    for(int i = 1; i<= 4; i++){
+        dp[i] = i;
+    }
+    for(int i = 5; i <= number; i++){
+        for(int j = 1; j < i; j++){
+            dp[i] = max(dp[i], j*dp[i-j]);
+        }
+    }
+    return dp[number];
+}
+```
+
+- 剑指offer
+```cpp
+int cutRope(int number) {
+    if(number < 2){
+        return 0;
+    }else if(number == 2){
+        return 1;
+    }else if(number == 3){
+        return 2;
+    }
+    int* dp = new int[number+1];
+    dp[0] = 0;
+    dp[1] = 1;
+    dp[2] = 2;
+    dp[3] = 3;
+    int max = 0;
+    for(int i = 4; i <= number; i++){
+        max = 0;
+        for(int j = 1; j <= i/2; j++){
+            int product = dp[j]*dp[i-j];
+            max = max < product ? product : max;
+            dp[i] = max;
+        }
+    }
+    max = dp[number];
+    delete [] dp;
+    return max;
+}
+```
+
+### 贪心算法
+
+当 n >= 5时，尽可能多地剪长度为3的绳子；当剩下的绳子长度为4时，把绳子剪成两段长度为2的绳子。
+```cpp
+int cutRope(int number) {
+    if(number < 2){
+        return 0;
+    }else if(number == 2){
+        return 1;
+    }else if(number == 3){
+        return 2;
+    }
+    // 尽可能多的剪去长度为3的绳子段
+    int timesOf3 = number / 3;
+    // 当最后剩下的长度为4时，把绳子剪成长度为2的两段
+    if(number - timesOf3*3 == 1){
+        timesOf3 -= 1;
+    }
+    int timesOf2 = (number - timesOf3*3)/2;
+    return (int)(pow(3, timesOf3))*(int)(pow(2, timesOf2));
+}
+```
