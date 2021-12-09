@@ -393,3 +393,92 @@ int cutRope(int number) {
     return (int)(pow(3, timesOf3))*(int)(pow(2, timesOf2));
 }
 ```
+
+## 47. 礼物的最大价值
+
+- [牛客网：JZ47 礼物的最大价值](https://www.nowcoder.com/practice/2237b401eb9347d282310fc1c3adb134)
+- [leetcode: 剑指 Offer 47. 礼物的最大价值](https://leetcode-cn.com/problems/li-wu-de-zui-da-jie-zhi-lcof/)
+
+### 暴力递归
+```cpp
+int maxValue(vector<vector<int>>& grid) {
+    // write code here
+    int m = grid.size()-1;
+    int n = grid[0].size()-1;
+    return process(m, n, 0, 0, 0, grid);
+}
+int process(int m, int n, int x, int y, int sum, const vector<vector<int>>& grid){
+    if(x > m || y > n){
+        return -1;
+    }
+    if(x == m && y == n){
+        return grid[x][y] + sum;
+    }
+    return max(grid[x][y]+process(m, n, x+1, y, sum, grid), 
+                grid[x][y]+process(m, n, x, y+1, sum, grid));
+}
+```
+
+### 记忆化搜索
+```cpp
+int maxValue(vector<vector<int>>& grid) {
+    // write code here
+    int m = grid.size()-1;
+    int n = grid[0].size()-1;
+    vector<vector<int>> dp;
+    for(int i = 0; i <= m; i++){
+        vector<int> tmp;
+        for(int j = 0; j <= n; j++){
+            tmp.push_back(-1);
+        }
+        dp.push_back(tmp);
+    }
+    return process(m, n, 0, 0, 0, grid, dp);
+}
+int process(int m, int n, int x, int y, int sum, const vector<vector<int>>& grid,
+            vector<vector<int>>& dp){
+    if(x > m || y > n){
+        return -1;
+    }
+    if(dp[x][y] != -1){
+        return dp[x][y];
+    }
+    if(x == m && y == n){
+        dp[x][y] = grid[x][y] + sum;
+        return dp[x][y];
+    }
+    dp[x][y] = max(grid[x][y]+process(m, n, x+1, y, sum, grid, dp), 
+                grid[x][y]+process(m, n, x, y+1, sum, grid, dp));
+    return dp[x][y];
+}
+```
+
+### 动态规划
+```cpp
+int maxValue(vector<vector<int> >& grid) {
+    // write code here
+    int m = grid.size();
+    int n = grid[0].size();
+    return process(grid, m, n);
+}
+int process(const vector<vector<int>>& grid, int m, int n){
+    if(grid.size() < 0 || m <= 0 || n <= 0){
+        return 0;
+    }
+    vector<int> maxValues(n, 0);
+    for(int i = 0; i < m; i++){
+        for(int j = 0; j < n; j++){
+            int left = 0;
+            int up = 0;
+            if(i > 0){
+                up = maxValues[j];
+            }
+            if(j > 0){
+                left = maxValues[j-1];
+            }
+            maxValues[j] = max(left, up) + grid[i][j];
+        }
+    }
+    return maxValues[n-1];
+}
+```
